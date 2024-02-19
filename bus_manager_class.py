@@ -56,12 +56,18 @@ class BusManager(ABC):
         # return True
         pass
 
-    @abstractmethod
-    def run_notifier(self, listener_func: Callable[[Message], any]):
+    def run_notifier(
+        self,
+        listener_func: Callable[[Message], None],
+        notifier_exec_time: float = 1.0,
+        virtual: bool = False,
+    ):
         """Run non-blocking synchronous notifier and listener thread.
 
         Args:
             listener_func: Listener functions utilized by notifier.
+            notifier_exec_time: Max time required for listeners, default 1.0.
+            virtual: Override connection to virtual, default False.
 
         Notes:
             Careful consideration of practice required to prevent infinite
@@ -73,13 +79,14 @@ class BusManager(ABC):
 
             Make sure to account time for the Notifier to run.
         """
-        # with self.connection() as b:
-        #     Notifier(b, [listener_func])
-        #
-        #     # ...
-        #
-        #     time.sleep(1.0)  # Allow time for Notifier to run.
-        pass
+        if virtual:
+            bus_context_manager = Bus("virtual", bustype="virtual")
+        else:
+            bus_context_manager = self.connection()
+
+        with bus_context_manager as b:
+            Notifier(b, [listener_func])
+            time.sleep(notifier_exec_time)  # Allow time for Notifier to run.
 
 
 class Virtual(BusManager):
@@ -95,12 +102,6 @@ class Virtual(BusManager):
         except Exception as e:
             raise e
         return True
-
-    def run_notifier(self, listener_func: Callable[[Message], any]):
-        with self.connection() as b:
-            Notifier(b, [listener_func])
-
-            time.sleep(1.0)  # Allow time for Notifier to run.
 
 
 class PeakCANBasic(BusManager):
@@ -120,9 +121,3 @@ class PeakCANBasic(BusManager):
         except Exception as e:
             raise e
         return True
-
-    def run_notifier(self, listener_func: Callable[[Message], any]):
-        with self.connection() as b:
-            Notifier(b, [listener_func])
-
-            time.sleep(1.0)  # Allow time for Notifier to run.

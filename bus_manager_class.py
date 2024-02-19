@@ -82,7 +82,30 @@ class BusManager(ABC):
         pass
 
 
+class Virtual(BusManager):
+    """Virtual CAN bus manager (for local virtual simulation)."""
+
+    def connection(self) -> BusABC:
+        return Bus("virtual", bustype="virtual")
+
+    def is_valid_connection(self) -> bool:
+        try:
+            connection = self.connection()
+            connection.shutdown()
+        except Exception as e:
+            raise e
+        return True
+
+    def run_notifier(self, listener_func: Callable[[Message], any]):
+        with self.connection() as b:
+            Notifier(b, [listener_func])
+
+            time.sleep(1.0)  # Allow time for Notifier to run.
+
+
 class PeakCANBasic(BusManager):
+    """PEAK-CAN USB CAN bus manager."""
+
     def connection(self) -> BusABC:
         return Bus(
             bustype="pcan", channel="PCAN_USBBUS1", bitrate=self.bit_rate

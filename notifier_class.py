@@ -55,7 +55,7 @@ class CustomNotifier:
                 listener_func(msg)
 
     def simulate(self, messages: list[Message]):
-        """Simulate dynamic Notifier with messages schedule via timestamp.
+        """Simulate dynamic Notifier with messages scheduled via timestamp.
 
         Args:
             messages: Messages to schedule to send.

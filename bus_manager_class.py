@@ -64,11 +64,29 @@ class CANBusManager:
             self.__bus.shutdown()
             print("CANBusManager stopped.")
 
+    def simulate(self, messages: list[can.Message]):
+        """Start the CAN bus and run simulated CAN bus messages.
+
+        Args:
+            messages: Messages to simulate Rx.
+
+        Notes:
+            Messages are scheduled via timestamp.
+        """
+        # Start standard bus.
+        self.start()
+
+        # Begin (threaded) notifier scheduled message simulation function.
+        self.__notifier.simulate(messages=messages)
+        print(
+            f"CANBusManager Notifier simulation started."
+        )
+
     def add_listener(self, listener):
         """Add a listener Callable to Notifier.
 
         Args:
-            listener: Listner to add to Notifier.
+            listener: Listener to add to Notifier.
         """
         self.__notifier.add_listener(listener)
 

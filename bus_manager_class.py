@@ -1,91 +1,81 @@
-"""Classes for managing can package Bus connections.
+"""Classes for managing all general Bus connections."""
 
-All low level BusABC object calls and thread management should be handled here.
-"""
+import threading
 
-import time
-from abc import *
-from collections.abc import Callable
+import can
 
-from can import *
+from notifier_class import CustomNotifier
 
 
-class BusManager(ABC):
-    """CAN bus hardware manager super class.
-
-    Defines general structure of all CAN managers.
-    """
-
-    def __init__(self, bit_rate: int):
-        """Class initialization.
+class CANBusManager:
+    def __init__(
+        self,
+        channel: str = "virtual",
+        bus_type: str = "virtual",
+        filters: list[dict[str, int | bool]] = None,
+    ):
+        """General CANBusManager initialization.
 
         Args:
-            bit_rate: Bit rate of requested bus connection.
+            channel: python.can.Bus() channel parameter.
+            bus_type: python.can.Bus() bustype parameter.
+            filters: python.can.Bus() filters parameter.
         """
-        self.bit_rate = bit_rate
+        self.__channel = channel
+        self.__bus_type = bus_type
+        self.__filters = filters  # List of CAN filter dictionaries
+        self.__notifier = CustomNotifier()
+        self.__running = False
+        self.__reader_thread = None  # Initialized later.
+        self.__bus = None  # Initialized later.
 
-    @abstractmethod
-    def connection(self) -> BusABC:
-        """Get Bus connection of the selected CANBusManager.
-
+    def is_running(self) -> bool:
+        """Get state of CAN bus.
 
         Returns:
-            BusABC object of bus connection.
+            True for running, False for not running.
         """
-        pass
+        return self.__running
 
-    @abstractmethod
-    def is_valid_connection(self) -> bool:
-        """Test connection with error handling for connection status.
-
-        Returns:
-            True for valid connection, False for invalid connection.
-
-        Notes:
-            Use python's with statement to open the Bus connection. If you are
-            developing on an edge case and cannot use one, make sure to call
-            BusABC_object.shutdown().
-        """
-        # try:
-        #     connection = self.connection()
-        #     connection.shutdown()
-        # except interfaces.x.x.SomeInterfaceInitializationError:
-        #     return False
-        # except Exception as e:
-        #     raise e
-        # return True
-        pass
-
-
-class Virtual(BusManager):
-    """Virtual CAN bus manager (for local virtual simulation)."""
-
-    def connection(self) -> BusABC:
-        return Bus("virtual", bustype="virtual")
-
-    def is_valid_connection(self) -> bool:
-        try:
-            connection = self.connection()
-            connection.shutdown()
-        except Exception as e:
-            raise e
-        return True
-
-
-class PeakCANBasic(BusManager):
-    """PEAK-CAN USB CAN bus manager."""
-
-    def connection(self) -> BusABC:
-        return Bus(
-            bustype="pcan", channel="PCAN_USBBUS1", bitrate=self.bit_rate
+    def start(self):
+        """Start the CAN bus."""
+        # Initialize the CAN bus.
+        self.__bus = can.interface.Bus(
+            channel=self.__channel,
+            bustype=self.__bus_type,
+            can_filters=self.__filters,
         )
 
-    def is_valid_connection(self) -> bool:
-        try:
-            connection = self.connection()
-            connection.shutdown()
-        except interfaces.pcan.pcan.PcanCanInitializationError:
-            return False
-        except Exception as e:
-            raise e
-        return True
+        # Start the CAN reader in a daemon thread.
+        self.__reader_thread = threading.Thread(
+            target=self.can_reader, daemon=True
+        )
+        self.__reader_thread.start()
+        self.__running = True
+        print(
+            f"CANBusManager started on bus {self.__bus} with "
+            f"filters {self.__filters}."
+        )
+
+    def stop(self):
+        """Stop the CAN bus."""
+        if self.__running:
+            self.__running = False
+            print("CANBusManager stopped.")
+
+    def add_listener(self, listener):
+        """Add a listener Callable to Notifier.
+
+        Args:
+            listener: Listner to add to Notifier.
+        """
+        self.__notifier.add_listener(listener)
+
+    def can_reader(self):
+        """Read messages from the CAN bus and notify listeners."""
+        while self.__running:
+            msg = self.__bus.recv(timeout=1.0)
+            # TODO: A minium timeout is hardcoded here. A better solution might
+            #  be possible.
+            if msg:
+                self.__notifier.notify_listeners(msg)

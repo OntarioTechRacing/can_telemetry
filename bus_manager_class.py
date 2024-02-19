@@ -16,12 +16,18 @@ class BusManager(ABC):
     Defines general structure of all CAN managers.
     """
 
-    @abstractmethod
-    def connection(self, bit_rate: int) -> BusABC:
-        """Get Bus connection of the selected CANBusManager.
+    def __init__(self, bit_rate: int):
+        """Class initialization.
 
         Args:
             bit_rate: Bit rate of requested bus connection.
+        """
+        self.bit_rate = bit_rate
+
+    @abstractmethod
+    def connection(self) -> BusABC:
+        """Get Bus connection of the selected CANBusManager.
+
 
         Returns:
             BusABC object of bus connection.
@@ -29,11 +35,8 @@ class BusManager(ABC):
         pass
 
     @abstractmethod
-    def is_valid_connection(self, bit_rate: int) -> bool:
+    def is_valid_connection(self) -> bool:
         """Test connection with error handling for connection status.
-
-        Args:
-            bit_rate: Bit rate of requested bus connection.
 
         Returns:
             True for valid connection, False for invalid connection.
@@ -44,7 +47,7 @@ class BusManager(ABC):
             BusABC_object.shutdown().
         """
         # try:
-        #     connection = self.connection(bit_rate)
+        #     connection = self.connection()
         #     connection.shutdown()
         # except interfaces.x.x.SomeInterfaceInitializationError:
         #     return False
@@ -54,13 +57,10 @@ class BusManager(ABC):
         pass
 
     @abstractmethod
-    def run_notifier(
-        self, bit_rate: int, listener_func: Callable[[Message], any]
-    ):
+    def run_notifier(self, listener_func: Callable[[Message], any]):
         """Run non-blocking synchronous notifier and listener thread.
 
         Args:
-            bit_rate: Bit rate of requested bus connection.
             listener_func: Listener functions utilized by notifier.
 
         Notes:
@@ -73,7 +73,7 @@ class BusManager(ABC):
 
             Make sure to account time for the Notifier to run.
         """
-        # with self.connection(bit_rate) as b:
+        # with self.connection() as b:
         #     Notifier(b, [listener_func])
         #
         #     # ...
@@ -83,12 +83,14 @@ class BusManager(ABC):
 
 
 class PeakCANBasic(BusManager):
-    def connection(self, bit_rate: int) -> BusABC:
-        return Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate=bit_rate)
+    def connection(self) -> BusABC:
+        return Bus(
+            bustype="pcan", channel="PCAN_USBBUS1", bitrate=self.bit_rate
+        )
 
-    def is_valid_connection(self, bit_rate: int) -> bool:
+    def is_valid_connection(self) -> bool:
         try:
-            connection = self.connection(bit_rate)
+            connection = self.connection()
             connection.shutdown()
         except interfaces.pcan.pcan.PcanCanInitializationError:
             return False
@@ -96,10 +98,8 @@ class PeakCANBasic(BusManager):
             raise e
         return True
 
-    def run_notifier(
-        self, bit_rate: int, listener_func: Callable[[Message], any]
-    ):
-        with self.connection(bit_rate) as b:
+    def run_notifier(self, listener_func: Callable[[Message], any]):
+        with self.connection() as b:
             Notifier(b, [listener_func])
 
             time.sleep(1.0)  # Allow time for Notifier to run.

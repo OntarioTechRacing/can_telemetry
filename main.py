@@ -1,10 +1,8 @@
-import dbc_reader
-
 if __name__ == "__main__":
     # TODO: TEST CODE for #2
     #filters=[]
     # dbc_path = "F24_AMS_CANDB.dbc"
-    # dbc_support = dbc_reader.dbcReader(dbc_path)
+    # dbc_support = dbc_reader.DbcReader(dbc_path)
     # dbc_support.add_filters(filters, "M1_CellVoltages")
     # print(filters)
     #

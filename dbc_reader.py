@@ -1,25 +1,12 @@
-import cantools  # Import cantools for DBC file handling
+import canmatrix  # Import cantools for DBC file handling
 
 class dbcReader:
     def __init__(self, dbc_path):
-        self.dbc = cantools.database.load_file(dbc_path)
+        self.dbc = list(canmatrix.formats.loadp(dbc_path, flat_import=True).values())[0] #ensure we only take the network we want incase DBC defines multiple networks
     
-    def add_filters(self, filters):
+    def add_filters(self, filters, msg):
         filter=0
-        filters["M1"] = []
-        filters["M2"] = []
-        filters["M3"] = []
-        filters["M4"] = []
-        for message in self.dbc.messages:
-            if "M1_CellVoltages" in message.name:
-                filter = message.frame_id
-                filters["M1"].append(filter)
-            if "M2_CellVoltages" in message.name:
-                filter = message.frame_id
-                filters["M2"].append(filter)
-            if "M3_CellVoltages" in message.name:
-                filter = message.frame_id
-                filters["M3"].append(filter)
-            if "M4_CellVoltages" in message.name:
-                filter = message.frame_id
-                filters["M4"].append(filter)
+        for message in self.dbc.frames: #Loop over all defined messages in dbc
+            if msg in message.name:
+                filter = message.arbitration_id.id
+                filters.append(filter) #add message to filers list based on requirements

@@ -1,4 +1,4 @@
-"""Classes for managing can package Bus connections and Notifiers.
+"""Classes for managing can package Bus connections.
 
 All low level BusABC object calls and thread management should be handled here.
 """
@@ -55,38 +55,6 @@ class BusManager(ABC):
         #     raise e
         # return True
         pass
-
-    def run_notifier(
-        self,
-        listener_func: Callable[[Message], None],
-        notifier_exec_time: float = 1.0,
-        virtual: bool = False,
-    ):
-        """Run non-blocking synchronous notifier and listener thread.
-
-        Args:
-            listener_func: Listener functions utilized by notifier.
-            notifier_exec_time: Max time required for listeners, default 1.0.
-            virtual: Override connection to virtual, default False.
-
-        Notes:
-            Careful consideration of practice required to prevent infinite
-            thread running due to improper listener to close the thread.
-
-            Use python's with statement to open the Bus connection. If you are
-            developing on an edge case and cannot use one, make sure to call
-            BusABC_object.shutdown().
-
-            Make sure to account time for the Notifier to run.
-        """
-        if virtual:
-            bus_context_manager = Bus("virtual", bustype="virtual")
-        else:
-            bus_context_manager = self.connection()
-
-        with bus_context_manager as b:
-            Notifier(b, [listener_func])
-            time.sleep(notifier_exec_time)  # Allow time for Notifier to run.
 
 
 class Virtual(BusManager):

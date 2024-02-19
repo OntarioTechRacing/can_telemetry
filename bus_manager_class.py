@@ -61,6 +61,7 @@ class CANBusManager:
         """Stop the CAN bus."""
         if self.__running:
             self.__running = False
+            self.__bus.shutdown()
             print("CANBusManager stopped.")
 
     def add_listener(self, listener):

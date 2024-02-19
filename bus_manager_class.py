@@ -39,6 +39,13 @@ class CANBusManager:
 
     def start(self):
         """Start the CAN bus."""
+        filter_print = (
+            "no filters"
+            if self.__filters is None
+            else f"filters {self.__filters}"
+        )
+        print(f"CANBusManager starting on {self.__bus} with {filter_print}.")
+
         # Initialize the CAN bus.
         self.__bus = can.interface.Bus(
             channel=self.__channel,
@@ -52,10 +59,6 @@ class CANBusManager:
         )
         self.__reader_thread.start()
         self.__running = True
-        print(
-            f"CANBusManager started on bus {self.__bus} with "
-            f"filters {self.__filters}."
-        )
 
     def stop(self):
         """Stop the CAN bus."""
@@ -75,12 +78,10 @@ class CANBusManager:
         """
         # Start standard bus.
         self.start()
+        print(f"CANBusManager Notifier simulation starting...")
 
         # Begin (threaded) notifier scheduled message simulation function.
         self.__notifier.simulate(messages=messages)
-        print(
-            f"CANBusManager Notifier simulation started."
-        )
 
     def add_listener(self, listener):
         """Add a listener Callable to Notifier.

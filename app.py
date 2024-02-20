@@ -5,6 +5,8 @@ from datetime import datetime
 from enum import Enum, auto
 
 import can
+from cantools import database
+from cantools.database.namedsignalvalue import NamedSignalValue
 
 from bus_manager_class import CANBusManager
 
@@ -18,6 +20,7 @@ class CANInterface(Enum):
 class CANTelemetryApp:
     def __init__(
         self,
+        dbc_file_path: str,
         interface: CANInterface = CANInterface.VIRTUAL,
         bit_rate: int = 500000,
         hardware_filters: list[dict[str, int | bool]] = None,
@@ -26,6 +29,7 @@ class CANTelemetryApp:
         ascii_logging: bool = False,  # Enable ascii logging listener.
         sim_messages: list[can.Message] = None,  # CANInterface.SIM messages.
     ):
+        self.__dbc_file_path = dbc_file_path
         self.__interface = interface
         self.__bit_rate = bit_rate
         self.__hardware_filters = hardware_filters
@@ -37,6 +41,22 @@ class CANTelemetryApp:
         self.__csv_logging = csv_logging
         self.__ascii_logging = ascii_logging
         self.__sim_messages = sim_messages if sim_messages is not None else []
+
+    @property
+    def dbc_file_path(self) -> str:
+        """Get DBC file path.
+
+        Returns:
+            CANInterface enum.
+        """
+        return self.__dbc_file_path
+
+    @dbc_file_path.setter
+    def dbc_file_path(self, dbc_file_path: str):
+        """Set DBC file path."""
+        if not isinstance(dbc_file_path, str):
+            raise TypeError("dbc_file_path expected type str.")
+        self.__dbc_file_path = dbc_file_path
 
     @property
     def interface(self) -> CANInterface:
@@ -91,6 +111,24 @@ class CANTelemetryApp:
             ASCII log file path.
         """
         return f"{self.base_log_file_path}_ascii.log"
+
+    def get_dbc_db(self) -> database.Database:
+        # Load the DBC.
+        return database.load_file(self.dbc_file_path)
+
+    def decode(
+        self, msg: can.Message
+    ) -> dict[str, int | float | str | NamedSignalValue]:
+        """Decode CAN bus Message with DBC.
+
+        Args:
+            msg: Message object to decode.
+
+        Returns:
+            Return the decoded message.
+        """
+        db = self.get_dbc_db()
+        return db.decode_message(msg.arbitration_id, msg.data)
 
     def start(self):
         """Start primary CANTelemetryApp logic.

@@ -1,6 +1,6 @@
 if __name__ == "__main__":
     # TODO: TEST CODE for #2
-    #filters=[]
+    # filters = []
     # dbc_path = "F24_AMS_CANDB.dbc"
     # dbc_support = dbc_reader.DbcReader(dbc_path)
     # dbc_support.add_filters(filters, "M1_CellVoltages")

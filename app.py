@@ -114,50 +114,60 @@ class CANTelemetryApp:
         return f"{self.base_log_file_path}_ascii.log"
 
     def sqlite_read_via(
-        self, n: int, white_list_ids: list = None, black_list_ids: list = None
-    ) -> list:
+        self,
+        n: int,
+        white_list_ids: list = None,
+        black_list_ids: list = None,
+        is_error_frame: bool = None,
+    ) -> list[can.Message]:
         """General purpose CAN message query function from SQLite database.
 
         Args:
+
             n: Number of messages to fetch.
             white_list_ids: List of arbitration IDs to include.
             black_list_ids: List of arbitration IDs to exclude.
+            is_error_frame: If messages should be filtered by error state.
 
         Returns:
-            list: SQLite cursor fetchall of query.
+            list: List of can.Message objects from SQLite cursor fetchall query.
 
         Notes:
             Database fields:
-            [
-                "ts",
-                "arbitration_id",
-                "extended",
-                "remote",
-                "error",
-                "dlc",
-                "data",
-            ]
+                timestamp       =   ts
+                arbitration_id  =   arbitration_id
+                is_extended_id  =   extended
+                is_remote_frame =   remote
+                is_error_frame  =   error
+                dlc             =   dlc
+                data            =   data
         """
+        # Construct the query.
+        query = (
+            "SELECT ts, arbitration_id, extended, remote, error, dlc, data "
+            "FROM messages"
+        )
+        conditions = []
+        parameters = []
+
         # Setup database connector and cursor.
         connector = sqlite3.connect(self.sqlite_log_file_path)
         cursor = connector.cursor()
 
-        # Base query.
-        query = "SELECT * FROM messages"
-        conditions = []
-        parameters = []
-
-        # Include white list IDs in query if provided.
+        # Filter by white list and black list of arbitration IDs.
         if white_list_ids:
             placeholders = ",".join("?" for _ in white_list_ids)
             conditions.append(f"arbitration_id IN ({placeholders})")
             parameters.extend(white_list_ids)
-
-        # Exclude black list IDs from query if provided.
         if black_list_ids:
             placeholders = ",".join("?" for _ in black_list_ids)
             conditions.append(f"arbitration_id NOT IN ({placeholders})")
             parameters.extend(black_list_ids)
+
+        # Filter by is_error_frame if specified.
+        if is_error_frame is not None:
+            conditions.append("is_error_frame = ?")
+            parameters.append(is_error_frame)
 
         # Append conditions to query if any.
         if conditions:
@@ -167,15 +177,30 @@ class CANTelemetryApp:
         query += " ORDER BY ts DESC LIMIT ?"
         parameters.append(n)
 
-        # Execute cursor.
+        # Execute the query.
         cursor.execute(query, parameters)
-        fetch_all_data = cursor.fetchall()
+        rows = cursor.fetchall()
 
         # Close cursor and connector.
         cursor.close()
         connector.close()
 
-        return fetch_all_data
+        # Convert rows to can.Message objects.
+        messages = []
+        for row in rows:
+            message = can.Message(
+                timestamp=row[0],
+                arbitration_id=row[1],
+                is_extended_id=row[2],
+                is_remote_frame=row[3],
+                is_error_frame=row[4],
+                dlc=row[5],
+                data=row[6],
+            )
+            # Augment the message object with attribute.
+            messages.append(message)
+
+        return messages
 
     def get_dbc_db(self) -> database.Database:
         """Get DBC database object from DBC filepath.

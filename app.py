@@ -113,6 +113,11 @@ class CANTelemetryApp:
         return f"{self.base_log_file_path}_ascii.log"
 
     def get_dbc_db(self) -> database.Database:
+        """Get DBC database object from DBC filepath.
+
+        Returns:
+            database.Database object of DBC.
+        """
         # Load the DBC.
         return database.load_file(self.dbc_file_path)
 
@@ -187,9 +192,12 @@ class CANTelemetryApp:
             # Start CAN bus.
             manager.start()
 
+        # Run bus.
         try:
             while True:
                 time.sleep(1)
+
+        # Manual program stop.
         except KeyboardInterrupt:
             # Stop loggers.
             sqlite_logger.stop()

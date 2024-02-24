@@ -1,4 +1,4 @@
-"""Classes for managing all general Bus connections."""
+"""CAN bus connection class for bus management."""
 
 import threading
 
@@ -18,7 +18,7 @@ class CANBusManager:
 
         Args:
             channel: python.can.Bus() channel parameter.
-            bus_type: python.can.Bus() bustype parameter.
+            bus_type: python.can.Bus() bus type parameter.
             filters: python.can.Bus() filters parameter.
         """
         self.__channel = channel

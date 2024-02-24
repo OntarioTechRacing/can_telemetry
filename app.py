@@ -1,5 +1,6 @@
 """Main application class for CAN Telemetry."""
 
+import sqlite3
 import time
 from datetime import datetime
 from enum import Enum, auto
@@ -111,6 +112,43 @@ class CANTelemetryApp:
             ASCII log file path.
         """
         return f"{self.base_log_file_path}_ascii.log"
+
+    def sqlite_read_via(self, n: int) -> list:
+        """General purpose CAN message query function from SQLite database.
+
+
+
+        Returns:
+            SQLite cursor fetchall of query.
+
+        Notes:
+            Database fields:
+            [
+                "ts",
+                "arbitration_id",
+                "extended",
+                "remote",
+                "error",
+                "dlc",
+                "data",
+            ]
+        """
+        # Setup database connector and cursor.
+        connector = sqlite3.connect(self.sqlite_log_file_path)
+        cursor = connector.cursor()
+
+        # General query.
+        query = "SELECT * FROM messages ORDER BY ts DESC LIMIT ?"
+
+        # Execute cursor.
+        cursor.execute(query, (n,))
+        fetch_all_data = cursor.fetchall()
+
+        # Close cursor and connector.
+        cursor.close()
+        connector.close()
+
+        return fetch_all_data
 
     def get_dbc_db(self) -> database.Database:
         """Get DBC database object from DBC filepath.

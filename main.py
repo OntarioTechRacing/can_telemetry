@@ -21,10 +21,13 @@ if __name__ == "__main__":
     # ]
     #
     # app = CANTelemetryApp(
+    #     dbc_file_path="example.dbc",
     #     interface=CANInterface.SIM,
+    #     bit_rate=500000,
     #     sim_messages=message_list,
     #     csv_logging=True,
     #     ascii_logging=True,
     # )
     # app.start()
+    # print(f"Last 3 messages: {app.sqlite_read_via(3)}")  # Last 3 messages.
     pass

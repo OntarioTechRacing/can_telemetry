@@ -113,13 +113,18 @@ class CANTelemetryApp:
         """
         return f"{self.base_log_file_path}_ascii.log"
 
-    def sqlite_read_via(self, n: int) -> list:
+    def sqlite_read_via(
+        self, n: int, white_list_ids: list = None, black_list_ids: list = None
+    ) -> list:
         """General purpose CAN message query function from SQLite database.
 
-
+        Args:
+            n: Number of messages to fetch.
+            white_list_ids: List of arbitration IDs to include.
+            black_list_ids: List of arbitration IDs to exclude.
 
         Returns:
-            SQLite cursor fetchall of query.
+            list: SQLite cursor fetchall of query.
 
         Notes:
             Database fields:
@@ -137,11 +142,33 @@ class CANTelemetryApp:
         connector = sqlite3.connect(self.sqlite_log_file_path)
         cursor = connector.cursor()
 
-        # General query.
-        query = "SELECT * FROM messages ORDER BY ts DESC LIMIT ?"
+        # Base query.
+        query = "SELECT * FROM messages"
+        conditions = []
+        parameters = []
+
+        # Include white list IDs in query if provided.
+        if white_list_ids:
+            placeholders = ",".join("?" for _ in white_list_ids)
+            conditions.append(f"arbitration_id IN ({placeholders})")
+            parameters.extend(white_list_ids)
+
+        # Exclude black list IDs from query if provided.
+        if black_list_ids:
+            placeholders = ",".join("?" for _ in black_list_ids)
+            conditions.append(f"arbitration_id NOT IN ({placeholders})")
+            parameters.extend(black_list_ids)
+
+        # Append conditions to query if any.
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+
+        # Append ordering and limit.
+        query += " ORDER BY ts DESC LIMIT ?"
+        parameters.append(n)
 
         # Execute cursor.
-        cursor.execute(query, (n,))
+        cursor.execute(query, parameters)
         fetch_all_data = cursor.fetchall()
 
         # Close cursor and connector.

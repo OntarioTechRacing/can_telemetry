@@ -13,6 +13,8 @@ from bus_manager_class import CANBusManager
 
 
 class CANInterface(Enum):
+    """Enum to define supported CAN bus interface types."""
+
     SIM = auto()
     VIRTUAL = auto()
     PEAK = auto()
@@ -30,6 +32,18 @@ class CANTelemetryApp:
         ascii_logging: bool = False,  # Enable ascii logging listener.
         sim_messages: list[can.Message] = None,  # CANInterface.SIM messages.
     ):
+        """CANTelemetryApp class initialization.
+
+        Args:
+            dbc_file_path: File path of DBC file.
+            interface: Interface CANInterface enum type, default VIRTUAL.
+            bit_rate: Bit rate of CAN bus instance, default 500000.
+            hardware_filters: Hardware filters to specify.
+            base_log_file_path: Base filepath of all log output files, defaults.
+            csv_logging: Boolean to enable CSV logging, default False.
+            ascii_logging: Boolean to enable ASCII logging, default False.
+            sim_messages: Simulation messages, interface must be SIM enum.
+        """
         self.__dbc_file_path = dbc_file_path
         self.__interface = interface
         self.__bit_rate = bit_rate
@@ -54,7 +68,11 @@ class CANTelemetryApp:
 
     @dbc_file_path.setter
     def dbc_file_path(self, dbc_file_path: str):
-        """Set DBC file path."""
+        """Set DBC file path.
+
+        Args:
+            dbc_file_path: DBC file path to set.
+        """
         if not isinstance(dbc_file_path, str):
             raise TypeError("dbc_file_path expected type str.")
         self.__dbc_file_path = dbc_file_path
@@ -123,7 +141,6 @@ class CANTelemetryApp:
         """General purpose CAN message query function from SQLite database.
 
         Args:
-
             n: Number of messages to fetch.
             white_list_ids: List of arbitration IDs to include.
             black_list_ids: List of arbitration IDs to exclude.
@@ -203,7 +220,7 @@ class CANTelemetryApp:
         return messages
 
     def get_dbc_db(self) -> database.Database:
-        """Get DBC database object from DBC filepath.
+        """Get DBC database object from DBC file path.
 
         Returns:
             database.Database object of DBC.

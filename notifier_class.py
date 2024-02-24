@@ -1,4 +1,4 @@
-"""Classes and logic for handling custom dynamic Notifiers."""
+"""Notifier class and logic for handling custom dynamic Notifiers."""
 
 import sched
 import threading

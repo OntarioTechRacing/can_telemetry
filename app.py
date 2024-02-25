@@ -5,6 +5,8 @@ import time
 from datetime import datetime
 from enum import Enum, auto
 
+import tkinter as tk
+
 import can
 from cantools import database
 from cantools.database.namedsignalvalue import NamedSignalValue
@@ -256,10 +258,7 @@ class CANTelemetryApp:
         manager = None
 
         # Virtual CAN bus.
-        if (
-            self.interface == CANInterface.SIM
-            or self.interface == CANInterface.VIRTUAL
-        ):
+        if self.interface == CANInterface.SIM or self.interface == CANInterface.VIRTUAL:
             manager = CANBusManager(filters=self.__hardware_filters)
 
         # PEAK CAN bus.
@@ -276,8 +275,7 @@ class CANTelemetryApp:
         # Ensure manager is set.
         if manager is None:
             raise RuntimeError(
-                f"Requested CANBusManager could not be made from "
-                f"{self.interface}."
+                f"Requested CANBusManager could not be made from " f"{self.interface}."
             )
 
         # Add SQLite logger.
@@ -322,4 +320,10 @@ class CANTelemetryApp:
 
     def start_gui(self):
         # TODO: FUTURE WIP.
-        pass
+        self.root.title("CAN Reader Application")
+        cmd_box = tk.Text(self.root, height=10, width=50)
+        cmd_box.pack(padx=10, pady=10)
+        # self.cmd_box = cmd_box
+        self.root.mainloop()
+
+        # pass

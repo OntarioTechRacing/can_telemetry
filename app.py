@@ -246,7 +246,7 @@ class CANTelemetryApp:
             Return the decoded message.
         """
         db = self.get_dbc_db()
-        return db.decode_message(msg.arbitration_id, msg.data)
+        return db.decode_message(msg.arbitration_id, msg.data, msg.timestamp)
 
     def start(self):
         """Start primary CANTelemetryApp logic.

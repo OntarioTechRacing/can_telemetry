@@ -320,10 +320,18 @@ class CANTelemetryApp:
 
     def start_gui(self):
         # TODO: FUTURE WIP.
-        self.root.title("CAN Reader Application")
-        cmd_box = tk.Text(self.root, height=10, width=50)
-        cmd_box.pack(padx=10, pady=10)
-        # self.cmd_box = cmd_box
-        self.root.mainloop()
 
-        # pass
+        pass
+
+    def setup_gui(self) -> object:
+        """Setup GUI window
+
+        Returns:
+            object: root window with all GUI elements
+        """
+        root = tk.Tk()
+        root.title("CAN Reader Application")
+        cmd_box = tk.Text(root, height=10, width=50)
+        cmd_box.pack(padx=10, pady=10)
+
+        return root

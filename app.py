@@ -259,10 +259,7 @@ class CANTelemetryApp:
         manager = None
 
         # Virtual CAN bus.
-        if (
-            self.interface == CANInterface.SIM
-            or self.interface == CANInterface.VIRTUAL
-        ):
+        if self.interface == CANInterface.SIM or self.interface == CANInterface.VIRTUAL:
             manager = CANBusManager(filters=self.__hardware_filters)
 
         # PEAK CAN bus.
@@ -279,8 +276,7 @@ class CANTelemetryApp:
         # Ensure manager is set.
         if manager is None:
             raise RuntimeError(
-                f"Requested CANBusManager could not be made from "
-                f"{self.interface}."
+                f"Requested CANBusManager could not be made from " f"{self.interface}."
             )
 
         # Add SQLite logger.
@@ -304,6 +300,9 @@ class CANTelemetryApp:
         else:
             # Start CAN bus.
             manager.start()
+
+        # Setup GUI elements for updates
+        root, cmd_box, window_plot, window_canvas = self.setup_gui()
 
         # Run bus.
         try:

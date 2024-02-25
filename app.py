@@ -7,6 +7,10 @@ from enum import Enum, auto
 
 import tkinter as tk
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+
 import can
 from cantools import database
 from cantools.database.namedsignalvalue import NamedSignalValue
@@ -318,20 +322,32 @@ class CANTelemetryApp:
             # Stop manager.
             manager.stop()
 
-    def start_gui(self):
-        # TODO: FUTURE WIP.
-
-        pass
-
-    def setup_gui(self) -> object:
-        """Setup GUI window
+    def setup_gui(self):
+        """Setup GUI window with cmd box and graph
 
         Returns:
-            object: root window with all GUI elements
+            objects: root window,
+                     cmd_box to write messages,
+                     widow_plot to display graph,
+                     window_canvas to execute graphing function
+
+        to call this function and setup consecutive varaibles properly, use the following call:
+        root, cmd_box, window_plot, window_canvas = self.setup_gui()
         """
         root = tk.Tk()
         root.title("CAN Reader Application")
         cmd_box = tk.Text(root, height=10, width=50)
         cmd_box.pack(padx=10, pady=10)
+        window_figure = Figure(figsize=(6, 4), dpi=100)
+        window_plot = window_figure.add_subplot(111)
+        window_plot.set_xlabel("Time (s)")
+        window_canvas = FigureCanvasTkAgg(window_figure, master=root)
+        window_canvas_widget = window_canvas.get_tk_widget()
+        window_canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        return root
+        return root, cmd_box, window_plot, window_canvas
+
+    def start_gui(self):
+        # TODO: FUTURE WIP.
+
+        pass

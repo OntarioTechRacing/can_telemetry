@@ -2,18 +2,15 @@
 
 import sqlite3
 import time
+import tkinter as tk
 from datetime import datetime
 from enum import Enum, auto
-
-import tkinter as tk
-
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
 
 import can
 from cantools import database
 from cantools.database.namedsignalvalue import NamedSignalValue
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 from bus_manager_class import CANBusManager
 
@@ -262,7 +259,10 @@ class CANTelemetryApp:
         manager = None
 
         # Virtual CAN bus.
-        if self.interface == CANInterface.SIM or self.interface == CANInterface.VIRTUAL:
+        if (
+            self.interface == CANInterface.SIM
+            or self.interface == CANInterface.VIRTUAL
+        ):
             manager = CANBusManager(filters=self.__hardware_filters)
 
         # PEAK CAN bus.
@@ -279,7 +279,8 @@ class CANTelemetryApp:
         # Ensure manager is set.
         if manager is None:
             raise RuntimeError(
-                f"Requested CANBusManager could not be made from " f"{self.interface}."
+                f"Requested CANBusManager could not be made from "
+                f"{self.interface}."
             )
 
         # Add SQLite logger.
@@ -322,17 +323,19 @@ class CANTelemetryApp:
             # Stop manager.
             manager.stop()
 
-    def setup_gui(self):
-        """Setup GUI window with cmd box and graph
+    @staticmethod
+    def setup_gui():
+        """Setup GUI window with cmd box and graph.
 
         Returns:
-            objects: root window,
-                     cmd_box to write messages,
-                     widow_plot to display graph,
-                     window_canvas to execute graphing function
+            GUI related objects. (root window, cmd_box to write messages,
+            widow_plot to display graph, window_canvas to execute graphing
+            function)
 
-        to call this function and setup consecutive varaibles properly, use the following call:
-        root, cmd_box, window_plot, window_canvas = self.setup_gui()
+        Notes:
+            To call this function and setup returning variables properly, use
+            the following call:
+            root, cmd_box, window_plot, window_canvas = self.setup_gui()
         """
         root = tk.Tk()
         root.title("CAN Reader Application")

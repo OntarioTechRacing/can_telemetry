@@ -363,6 +363,9 @@ class CANTelemetryApp:
         Note:
             will only run once for the last n messages, needs to be called in a loop
         """
+
+        window_plot.clear()
+
         msg_list = self.sqlite_read_via(num_points)  # retrive data
         plot_data, color_map = {}, {}
 

@@ -1,8 +1,11 @@
 """Main application class for CAN Telemetry."""
 
+import itertools
 import sqlite3
 import time
+import threading
 import tkinter as tk
+from matplotlib import cm
 from datetime import datetime
 from enum import Enum, auto
 
@@ -301,8 +304,8 @@ class CANTelemetryApp:
             # Start CAN bus.
             manager.start()
 
-        # Setup GUI elements for updates
-        root, cmd_box, window_plot, window_canvas = self.setup_gui()
+        # Run GUI
+        threading.Thread(target=self.start_gui)
 
         # Run bus.
         try:
@@ -343,13 +346,78 @@ class CANTelemetryApp:
         window_figure = Figure(figsize=(6, 4), dpi=100)
         window_plot = window_figure.add_subplot(111)
         window_plot.set_xlabel("Time (s)")
+        window_plot.set_ylabel("Signal Values")
         window_canvas = FigureCanvasTkAgg(window_figure, master=root)
         window_canvas_widget = window_canvas.get_tk_widget()
         window_canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         return root, cmd_box, window_plot, window_canvas
 
+    def graph_data(self, window_plot: object, window_canvas: object, num_points: int):
+        """Graphs data for n CAN meesages
+
+        Args:
+            window_plot (object): subplot from the root tkinter window
+            window_canvas (object): canvas for the subplot from the root tkinter windwow
+
+        Note:
+            will only run once for the last n messages, needs to be called in a loop
+        """
+        msg_list = self.sqlite_read_via(num_points)  # retrive data
+        plot_data, color_map = {}, {}
+
+        tab20 = cm.get_cmap("tab20")
+        color_cycle = itertools.cycle(tab20.colors)  # random colour generator
+
+        for msg in msg_list:
+            msg_id = msg.arbitration_id
+            msg_timestamp = msg.timestamp
+
+            if msg_id not in plot_data:
+                plot_data[msg_id] = {}
+                color_map[msg_id] = []
+
+            # Convert bytes data to a list of integers
+            signal_values = [
+                value for value in msg.data
+            ]  # list of data points from one msg_id
+
+            for index, value in enumerate(signal_values):
+                if index not in plot_data[msg_id]:
+                    plot_data[msg_id][index] = {"timestamps": [], "values": []}
+                    if index >= len(color_map[msg_id]):
+                        color_map[msg_id].append(
+                            next(color_cycle)
+                        )  # assign colour if it doesnt already have one
+
+                plot_data[msg_id][index]["timestamps"].append(
+                    msg_timestamp
+                )  # add corresponding timestamp
+                plot_data[msg_id][index]["values"].append(
+                    value
+                )  # each value gets a timestamp (intended repetition)
+
+        for msg_id, data_points in plot_data.items():
+            for index, data in data_points.items():
+                window_plot.plot(  # plot all data points and assign their corresponding legends
+                    data["timestamps"],
+                    data["values"],
+                    label=f"ID: {msg_id} Data: {index}",
+                    color=color_map[msg_id][index],
+                )
+
+        window_plot.legend(loc="upper left", fontsize="small", bbox_to_anchor=(1, 1))
+
+        window_canvas.figure.tight_layout()
+        window_plot.figure.subplots_adjust(right=0.8)
+
+        window_canvas.draw()
+
     def start_gui(self):
         # TODO: FUTURE WIP.
+        num_points = 60
+        root, cmd_box, window_plot, window_canvas = self.setup_gui()
+        self.graph_data(window_plot, window_canvas, num_points)
+        # self.update_cmd_box(root, cmd_box, num_points)
 
         pass

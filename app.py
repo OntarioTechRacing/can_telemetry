@@ -305,7 +305,11 @@ class CANTelemetryApp:
             manager.start()
 
         # Run GUI
-        threading.Thread(target=self.start_gui)
+
+        # TO-DO: uncomment code after development is finished for the CLI function
+
+        # gui_thread = threading.Thread(target=self.start_gui)
+        # gui_thread.start()
 
         # Run bus.
         try:

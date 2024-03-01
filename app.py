@@ -429,5 +429,3 @@ class CANTelemetryApp:
             self.graph_data(window_plot, window_canvas, num_points)
             root.update()
             time.sleep(0.1)
-
-        pass

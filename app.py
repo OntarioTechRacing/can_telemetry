@@ -385,9 +385,10 @@ class CANTelemetryApp:
                 color_map[msg_id] = []
 
             # Convert bytes data to a list of integers
-            signal_values = [
-                value for value in msg.data
-            ]  # list of data points from one msg_id
+            signal_values = []
+            info = self.decode(msg)
+            for key in info:
+                signal_values.append(info[key])
 
             for index, value in enumerate(signal_values):
                 if index not in plot_data[msg_id]:

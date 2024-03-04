@@ -308,8 +308,8 @@ class CANTelemetryApp:
 
         # TO-DO: uncomment code after development is finished for the CLI function
 
-        # gui_thread = threading.Thread(target=self.start_gui)
-        # gui_thread.start()
+        gui_thread = threading.Thread(target=self.start_gui)
+        gui_thread.start()
 
         # Run bus.
         try:
@@ -412,6 +412,7 @@ class CANTelemetryApp:
                     data["values"],
                     label=f"ID: {msg_id} Data: {index}",
                     color=color_map[msg_id][index],
+                    marker="o",
                 )
 
         window_plot.legend(loc="upper left", fontsize="small", bbox_to_anchor=(1, 1))

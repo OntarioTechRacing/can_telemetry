@@ -426,7 +426,6 @@ class CANTelemetryApp:
         num_points = 60
         root, cmd_box, window_plot, window_canvas = self.setup_gui()
         while True:
-            # self.update_cmd_box(root, cmd_box, num_points)
             self.graph_data(window_plot, window_canvas, num_points)
             root.update()
             time.sleep(0.1)

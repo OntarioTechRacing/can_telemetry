@@ -399,7 +399,7 @@ class CANTelemetryApp:
                         )  # assign colour if it doesnt already have one
 
                 plot_data[msg_id][index]["timestamps"].append(
-                    msg_timestamp
+                    datetime.fromtimestamp(msg_timestamp)
                 )  # add corresponding timestamp
                 plot_data[msg_id][index]["values"].append(
                     value

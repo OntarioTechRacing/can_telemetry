@@ -308,8 +308,8 @@ class CANTelemetryApp:
 
         # TO-DO: uncomment code after development is finished for the CLI function
 
-        # gui_thread = threading.Thread(target=self.start_gui)
-        # gui_thread.start()
+        gui_thread = threading.Thread(target=self.start_gui)
+        gui_thread.start()
 
         # Run bus.
         try:
@@ -396,9 +396,10 @@ class CANTelemetryApp:
                 color_map[msg_id] = []
 
             # Convert bytes data to a list of integers
-            signal_values = [
-                value for value in msg.data
-            ]  # list of data points from one msg_id
+            signal_values = []
+            info = self.decode(msg)
+            for key in info:
+                signal_values.append(info[key])
 
             for index, value in enumerate(signal_values):
                 if index not in plot_data[msg_id]:
@@ -409,7 +410,7 @@ class CANTelemetryApp:
                         )  # assign colour if it doesnt already have one
 
                 plot_data[msg_id][index]["timestamps"].append(
-                    msg_timestamp
+                    datetime.fromtimestamp(msg_timestamp)
                 )  # add corresponding timestamp
                 plot_data[msg_id][index]["values"].append(
                     value
@@ -427,6 +428,7 @@ class CANTelemetryApp:
                     data["values"],
                     label=f"ID: {msg_id} Data: {index}",
                     color=color_map[msg_id][index],
+                    marker="o",
                 )
 
         window_plot.legend(loc="upper left", fontsize="small", bbox_to_anchor=(1, 1))

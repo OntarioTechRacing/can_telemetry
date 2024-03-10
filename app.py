@@ -357,12 +357,21 @@ class CANTelemetryApp:
 
         return root, cmd_box, window_plot, window_canvas
 
-    def graph_data(self, window_plot: object, window_canvas: object, num_points: int):
-        """Graphs data for n CAN meesages
+    def display_data(
+        self,
+        window_plot: object,
+        window_canvas: object,
+        cmd_box: object,
+        root: object,
+        num_points: int,
+    ):
+        """Graphs data and displays in the text box for n previous CAN meesages
 
         Args:
             window_plot (object): subplot from the root tkinter window
             window_canvas (object): canvas for the subplot from the root tkinter windwow
+            cmd_box (object): textbox to display data in a CLI format
+            root (object): root windown for all GUI elements
 
         Note:
             will only run once for the last n messages, needs to be called in a loop
@@ -375,6 +384,8 @@ class CANTelemetryApp:
 
         tab20 = cm.get_cmap("tab20")
         color_cycle = itertools.cycle(tab20.colors)  # random colour generator
+
+        cmd_box_data = ""  # one long string to hold all messages
 
         for msg in msg_list:
             msg_id = msg.arbitration_id
@@ -404,6 +415,11 @@ class CANTelemetryApp:
                     value
                 )  # each value gets a timestamp (intended repetition)
 
+            cmd_box_data += (
+                f"ID: {msg_id}, Data: {signal_values}, Timestamp: {msg_timestamp}\n"
+            )
+            # append data to string for cmd_box
+
         for msg_id, data_points in plot_data.items():
             for index, data in data_points.items():
                 window_plot.plot(  # plot all data points and assign their corresponding legends
@@ -420,12 +436,15 @@ class CANTelemetryApp:
 
         window_canvas.draw()
 
+        cmd_box.delete(1.0, "end")
+        cmd_box.insert("end", cmd_box_data)
+
     def start_gui(self):
         # TODO: FUTURE WIP.
         num_points = 60
         root, cmd_box, window_plot, window_canvas = self.setup_gui()
         while True:
             # self.update_cmd_box(root, cmd_box, num_points)
-            self.graph_data(window_plot, window_canvas, num_points)
+            self.display_data(window_plot, window_canvas, cmd_box, root, num_points)
             root.update()
             time.sleep(0.1)

@@ -1,6 +1,7 @@
 """CAN bus connection class for bus management."""
 
 import threading
+from typing import Callable
 
 import can
 
@@ -83,7 +84,7 @@ class CANBusManager:
         # Begin (threaded) notifier scheduled message simulation function.
         self.__notifier.simulate(messages=messages)
 
-    def add_listener(self, listener):
+    def add_listener(self, listener: Callable[[can.Message], None]):
         """Add a listener Callable to Notifier.
 
         Args:

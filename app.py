@@ -308,7 +308,9 @@ class CANTelemetryApp:
 
         # TO-DO: uncomment code after development is finished for the CLI function
 
-        gui_thread = threading.Thread(target=self.start_gui)
+        num_points = 60  # number of data points to get from SQL DB
+
+        gui_thread = threading.Thread(target=self.start_gui, args=(num_points,))
         gui_thread.start()
 
         # Run bus.
@@ -416,9 +418,7 @@ class CANTelemetryApp:
                     value
                 )  # each value gets a timestamp (intended repetition)
 
-            cmd_box_data += (
-                f"ID: {msg_id}, Data: {signal_values}, Timestamp: {msg_timestamp}\n"
-            )
+            cmd_box_data += f"ID: {msg_id}, Data: {signal_values}, Timestamp: {datetime.fromtimestamp(msg_timestamp)}\n"
             # append data to string for cmd_box
 
         for msg_id, data_points in plot_data.items():
@@ -441,9 +441,8 @@ class CANTelemetryApp:
         cmd_box.delete(1.0, "end")
         cmd_box.insert("end", cmd_box_data)
 
-    def start_gui(self):
+    def start_gui(self, num_points):
         # TODO: FUTURE WIP.
-        num_points = 60
         root, cmd_box, window_plot, window_canvas = self.setup_gui()
         while True:
             # self.update_cmd_box(root, cmd_box, num_points)

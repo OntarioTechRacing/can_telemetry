@@ -30,7 +30,6 @@ class CANTelemetryApp:
         csv_logging: bool = False,
         ascii_logging: bool = False,
         sim_messages: list[can.Message] = None,  # CANInterface.SIM messages.
-        run_gui: bool = True,
     ):
         """CANTelemetryApp class initialization.
 
@@ -43,7 +42,6 @@ class CANTelemetryApp:
             csv_logging: Boolean to enable CSV logging, default False.
             ascii_logging: Boolean to enable ASCII logging, default False.
             sim_messages: Simulation messages, interface must be SIM enum.
-            run_gui: Boolean to enable GUI, default True.
         """
         self.__dbc_file_path = dbc_file_path
         self.__interface = interface
@@ -57,7 +55,6 @@ class CANTelemetryApp:
         self.__csv_logging = csv_logging
         self.__ascii_logging = ascii_logging
         self.__sim_messages = sim_messages if sim_messages is not None else []
-        self.__run_gui = run_gui
 
     @property
     def dbc_file_path(self) -> str:

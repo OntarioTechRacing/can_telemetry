@@ -1,5 +1,6 @@
 """Main application class for CAN Telemetry."""
 
+import json
 import sqlite3
 import time
 from datetime import datetime
@@ -305,7 +306,7 @@ class CANTelemetryApp:
         # Run bus.
         try:
             while True:
-                time.sleep(1)
+                pass
 
         # Manual program stop.
         except KeyboardInterrupt:
@@ -319,7 +320,3 @@ class CANTelemetryApp:
 
             # Stop manager.
             manager.stop()
-
-    def start_gui(self):
-        # TODO: FUTURE WIP.
-        pass

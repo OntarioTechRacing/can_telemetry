@@ -1,8 +1,6 @@
 """Main application class for CAN Telemetry."""
 
-import json
 import sqlite3
-import time
 from datetime import datetime
 from enum import Enum, auto
 

@@ -1,5 +1,12 @@
 """Config manager class for CAN Telemetry App."""
 
+import json
+import os
+
+DEFAULT_CONFIG_FILE = "config.json"
+DEFAULT_CONFIG_GUI_KEY = "gui"  # JSON key value for GUI config.
+DEFAULT_CONFIG_APP_KEY = "app"  # JSON key value for (telemetry) app config.
+
 
 class CANTelemetryAppConfig:
     def __init__(
@@ -20,3 +27,34 @@ class CANTelemetryAppConfig:
         # Attribute setting.
         self.app_json = app_json
         self.gui_ui = gui_ui
+
+    @classmethod
+    def init_from_dir(cls, dir_path: str):
+        json_config_path = os.path.join(dir_path, DEFAULT_CONFIG_FILE)
+
+        try:
+            with open(json_config_path, "r") as file:
+                json_data = json.load(file)
+        except Exception as e:
+            return f"An error occurred: {e}"
+
+        # Validate config keys.
+        try:
+            app_json_data = json_data[DEFAULT_CONFIG_APP_KEY]
+        except KeyError:
+            raise RuntimeWarning(
+                f"No telemetry .json file found, expected json key value "
+                f"{DEFAULT_CONFIG_APP_KEY}"
+            )
+        try:
+            gui_ui_data = json_data[DEFAULT_CONFIG_GUI_KEY]
+        except KeyError:
+            raise RuntimeWarning(
+                f"No gui .ui file found, expected json key value "
+                f"{DEFAULT_CONFIG_GUI_KEY}"
+            )
+
+        return cls(
+            app_json=app_json_data,
+            gui_ui=gui_ui_data,
+        )

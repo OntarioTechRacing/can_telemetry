@@ -1,5 +1,6 @@
 """Main application class for CAN Telemetry."""
 
+import json
 import sqlite3
 from datetime import datetime
 from enum import Enum, auto
@@ -9,6 +10,47 @@ from cantools import database
 from cantools.database.namedsignalvalue import NamedSignalValue
 
 from bus_manager_class import CANBusManager
+
+
+def message_serializer(msg):
+    """Serialize a can.Message object to a JSON compatible dictionary."""
+    if not isinstance(msg, can.Message):
+        raise TypeError("msg must be an instance of can.Message")
+
+    # Convert data bytes to a list of integers for JSON serialization.
+    data = list(msg.data) if msg.data is not None else None
+
+    # Construct the dictionary.
+    return {
+        "timestamp": msg.timestamp,
+        "arbitration_id": msg.arbitration_id,
+        "is_extended_id": msg.is_extended_id,
+        "channel": msg.channel,
+        "dlc": msg.dlc,
+        "data": data,
+        "is_error_frame": msg.is_error_frame,
+        "is_remote_frame": msg.is_remote_frame,
+        "is_fd": msg.is_fd,
+        "bitrate_switch": msg.bitrate_switch,
+        "error_state_indicator": msg.error_state_indicator,
+    }
+
+
+def message_deserializer(data):
+    """Deserialize a dictionary to a can.Message object."""
+    return can.Message(
+        timestamp=data.get("timestamp"),
+        arbitration_id=data.get("arbitration_id"),
+        is_extended_id=data.get("is_extended_id"),
+        channel=data.get("channel"),
+        dlc=data.get("dlc"),
+        data=data.get("data"),
+        is_error_frame=data.get("is_error_frame"),
+        is_remote_frame=data.get("is_remote_frame"),
+        is_fd=data.get("is_fd"),
+        bitrate_switch=data.get("bitrate_switch"),
+        error_state_indicator=data.get("error_state_indicator"),
+    )
 
 
 class CANInterface(Enum):
@@ -129,6 +171,42 @@ class CANTelemetryApp:
             ASCII log file path.
         """
         return f"{self.base_log_file_path}_ascii.log"
+
+    def to_json(self, indent: bool = False) -> str:
+        """Serialize the CANTelemetryApp object to a JSON string."""
+        data = {
+            "dbc_file_path": self.__dbc_file_path,
+            "interface": self.__interface.name,  # Serialize enum to its name.
+            "bit_rate": self.__bit_rate,
+            "hardware_filters": self.__hardware_filters,
+            "base_log_file_path": self.__base_log_file_path,
+            "csv_logging": self.__csv_logging,
+            "ascii_logging": self.__ascii_logging,
+            "sim_messages": [
+                message_serializer(msg) for msg in self.__sim_messages
+            ],  # Serialize each CAN message.
+        }
+        return json.dumps(data, indent=(4 if indent else None))
+
+    @classmethod
+    def from_json(cls, json_data: str):
+        """Deserialize JSON string into a CANTelemetryApp instance."""
+        data = json.loads(json_data)
+        return cls(
+            dbc_file_path=data["dbc_file_path"],
+            interface=CANInterface[
+                data["interface"]
+            ],  # Convert from name to enum.
+            bit_rate=data.get("bit_rate", 500000),
+            hardware_filters=data.get("hardware_filters", []),
+            base_log_file_path=data.get("base_log_file_path"),
+            csv_logging=bool(data.get("csv_logging", False)),
+            ascii_logging=bool(data.get("ascii_logging", False)),
+            sim_messages=[
+                message_deserializer(msg)
+                for msg in data.get("sim_messages", [])
+            ],  # Deserialize each CAN message.
+        )
 
     def sqlite_read_via(
         self,

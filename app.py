@@ -186,9 +186,9 @@ class CANTelemetryApp:
             ],  # Serialize each CAN message.
         }
 
-    def to_json_file(self, indent: bool = False):
+    def to_json_file(self, file_path: str, indent: bool = False):
         """Serialize the CANTelemetryApp object to a JSON file."""
-        with open("tester.json", "w") as f:
+        with open(file_path, "w") as f:
             json.dump(self.__to_json_dict(), f, indent=(4 if indent else None))
 
     def to_json(self, indent: bool = False) -> str:

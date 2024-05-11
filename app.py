@@ -196,14 +196,13 @@ class CANTelemetryApp:
         return json.dumps(self.__to_json_dict(), indent=(4 if indent else None))
 
     @classmethod
-    def from_json(cls, json_data: str):
-        """Deserialize JSON string into a CANTelemetryApp instance."""
-        data = json.loads(json_data)
+    def __from_dict(cls, data: dict):
+        """Create an instance of CANTelemetryApp from a dictionary."""
         return cls(
             dbc_file_path=data["dbc_file_path"],
             interface=CANInterface[
                 data["interface"]
-            ],  # Convert from name to enum.
+            ],  # Convert from name to enum
             bit_rate=data.get("bit_rate", 500000),
             hardware_filters=data.get("hardware_filters", []),
             base_log_file_path=data.get("base_log_file_path"),
@@ -212,8 +211,21 @@ class CANTelemetryApp:
             sim_messages=[
                 message_deserializer(msg)
                 for msg in data.get("sim_messages", [])
-            ],  # Deserialize each CAN message.
+            ],  # Deserialize each CAN message
         )
+
+    @classmethod
+    def from_json_file(cls, file_path: str):
+        """Deserialize JSON file to a CANTelemetryApp instance."""
+        with open(file_path, "r") as f:
+            data = json.load(f)
+        return cls.__from_dict(data)
+
+    @classmethod
+    def from_json(cls, json_data: str):
+        """Deserialize JSON string to a CANTelemetryApp instance."""
+        data = json.loads(json_data)
+        return cls.__from_dict(data)
 
     def sqlite_read_via(
         self,

@@ -4,8 +4,9 @@ import json
 import os
 
 DEFAULT_CONFIG_FILE = "config.json"
-DEFAULT_CONFIG_GUI_KEY = "gui"  # JSON key value for GUI config.
 DEFAULT_CONFIG_APP_KEY = "app"  # JSON key value for (telemetry) app config.
+DEFAULT_CONFIG_GUI_KEY = "gui"  # JSON key value for GUI config.
+DEFAULT_CONFIG_DBC_KEY = "dbc"  # JSON key value for CAN DBC config.
 
 
 class CANTelemetryAppConfig:
@@ -13,6 +14,7 @@ class CANTelemetryAppConfig:
         self,
         app_json: str,
         gui_ui: str,
+        dbc: str,
     ):
         """CANTelemetryAppConfig class initialization.
 
@@ -23,10 +25,12 @@ class CANTelemetryAppConfig:
         # File extension verification.
         assert app_json[-5:] == ".json", "Expected .dbc file path."
         assert gui_ui[-3:] == ".ui", "Expected .ui file path."
+        assert dbc[-4:] == ".dbc", "Expected .dbc file path."
 
         # Attribute setting.
         self.app_json = app_json
         self.gui_ui = gui_ui
+        self.dbc = dbc
 
     @classmethod
     def init_from_dir(cls, dir_path: str):
@@ -53,8 +57,12 @@ class CANTelemetryAppConfig:
                 f"No gui .ui file found, expected json key value "
                 f"{DEFAULT_CONFIG_GUI_KEY}"
             )
+        try:
+            dbc_data = json_data[DEFAULT_CONFIG_DBC_KEY]
+        except KeyError:
+            raise RuntimeWarning(
+                f"No DBC .dbc file found, expected json key value "
+                f"{DEFAULT_CONFIG_DBC_KEY}"
+            )
 
-        return cls(
-            app_json=app_json_data,
-            gui_ui=gui_ui_data,
-        )
+        return cls(app_json=app_json_data, gui_ui=gui_ui_data, dbc=dbc_data)

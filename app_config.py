@@ -44,21 +44,25 @@ class CANTelemetryAppConfig:
 
         # Validate config keys.
         try:
-            app_json_data = json_data[DEFAULT_CONFIG_APP_KEY]
+            app_json_data = os.path.join(
+                dir_path, json_data[DEFAULT_CONFIG_APP_KEY]
+            )
         except KeyError:
             raise RuntimeWarning(
                 f"No telemetry .json file found, expected json key value "
                 f"{DEFAULT_CONFIG_APP_KEY}"
             )
         try:
-            gui_ui_data = json_data[DEFAULT_CONFIG_GUI_KEY]
+            gui_ui_data = os.path.join(
+                dir_path, json_data[DEFAULT_CONFIG_GUI_KEY]
+            )
         except KeyError:
             raise RuntimeWarning(
                 f"No gui .ui file found, expected json key value "
                 f"{DEFAULT_CONFIG_GUI_KEY}"
             )
         try:
-            dbc_data = json_data[DEFAULT_CONFIG_DBC_KEY]
+            dbc_data = os.path.join(dir_path, json_data[DEFAULT_CONFIG_DBC_KEY])
         except KeyError:
             raise RuntimeWarning(
                 f"No DBC .dbc file found, expected json key value "

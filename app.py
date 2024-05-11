@@ -358,20 +358,26 @@ class CANTelemetryApp:
         # PEAK CAN bus.
         elif self.interface == CANInterface.PEAK:
             try:
+                # Init Bus Manager.
                 manager = CANBusManager(
                     bus_type="pcan",
                     channel="PCAN_USBBUS1",
                     filters=self.__hardware_filters,
                 )
+
+                # Ensure manager is set.
+                if manager is None:
+                    raise RuntimeError(
+                        f"Requested CANBusManager could not be made from "
+                        f"{self.interface}."
+                    )
+
+                # Test connection.
+                manager.start()
+                manager.stop()
+
             except can.interfaces.pcan.pcan.PcanCanInitializationError:
                 raise RuntimeWarning("Could not connect to PCAN.")
-
-        # Ensure manager is set.
-        if manager is None:
-            raise RuntimeError(
-                f"Requested CANBusManager could not be made from "
-                f"{self.interface}."
-            )
 
         # Add SQLite logger.
         sqlite_logger = can.SqliteWriter(self.sqlite_log_file_path)

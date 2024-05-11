@@ -172,9 +172,8 @@ class CANTelemetryApp:
         """
         return f"{self.base_log_file_path}_ascii.log"
 
-    def to_json(self, indent: bool = False) -> str:
-        """Serialize the CANTelemetryApp object to a JSON string."""
-        data = {
+    def __to_json_dict(self) -> dict:
+        return {
             "dbc_file_path": self.__dbc_file_path,
             "interface": self.__interface.name,  # Serialize enum to its name.
             "bit_rate": self.__bit_rate,
@@ -186,7 +185,15 @@ class CANTelemetryApp:
                 message_serializer(msg) for msg in self.__sim_messages
             ],  # Serialize each CAN message.
         }
-        return json.dumps(data, indent=(4 if indent else None))
+
+    def to_json_file(self, indent: bool = False):
+        """Serialize the CANTelemetryApp object to a JSON file."""
+        with open("tester.json", "w") as f:
+            json.dump(self.__to_json_dict(), f, indent=(4 if indent else None))
+
+    def to_json(self, indent: bool = False) -> str:
+        """Serialize the CANTelemetryApp object to a JSON string."""
+        return json.dumps(self.__to_json_dict(), indent=(4 if indent else None))
 
     @classmethod
     def from_json(cls, json_data: str):

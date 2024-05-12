@@ -4,6 +4,7 @@ import json
 import sqlite3
 from datetime import datetime
 from enum import Enum, auto
+from threading import Thread
 
 import can
 from cantools import database
@@ -61,7 +62,7 @@ class CANInterface(Enum):
     PEAK = auto()
 
 
-class CANTelemetryApp:
+class CANTelemetryApp(Thread):
     def __init__(
         self,
         dbc_file_path: str,
@@ -85,6 +86,12 @@ class CANTelemetryApp:
             ascii_logging: Boolean to enable ASCII logging, default False.
             sim_messages: Simulation messages, interface must be SIM enum.
         """
+        # Initialize threading attributes.
+        super().__init__()
+        self.daemon = True
+        self._stop_event = False
+
+        # Initialize Telemetry attributes.
         self.__dbc_file_path = dbc_file_path
         self.__interface = interface
         self.__bit_rate = bit_rate
@@ -338,14 +345,9 @@ class CANTelemetryApp:
         db = self.get_dbc_db()
         return db.decode_message(msg.arbitration_id, msg.data)
 
-    def start(self):
-        """Start primary CANTelemetryApp logic.
-
-        Raises:
-            RuntimeError: CANBusManager object was not instanced from interface.
-            RuntimeWarning: Hardware CAN bus connection failure.
-        """
-        # Create CANBusManager instance.
+    def run(self):
+        """Start primary CANTelemetryApp logic."""
+        # Initialize CANBusManager depending on the interface.
         manager = None
 
         # Virtual CAN bus.
@@ -379,36 +381,42 @@ class CANTelemetryApp:
             except can.interfaces.pcan.pcan.PcanCanInitializationError:
                 raise RuntimeWarning("Could not connect to PCAN.")
 
-        # Add SQLite logger.
+        # Initialize logging.
         sqlite_logger = can.SqliteWriter(self.sqlite_log_file_path)
         manager.add_listener(sqlite_logger)
+        csv_logger = (
+            can.CSVWriter(self.csv_log_file_path)
+            if self.__csv_logging
+            else None
+        )
+        ascii_logger = (
+            can.Logger(self.ascii_log_file_path)
+            if self.__ascii_logging
+            else None
+        )
 
-        # Add any additional loggers specified.
-        csv_logger = None
-        ascii_logger = None
-
-        if self.__csv_logging:
-            csv_logger = can.CSVWriter(self.csv_log_file_path)
+        if csv_logger:
             manager.add_listener(csv_logger)
-        if self.__ascii_logging:
-            ascii_logger = can.Logger(self.ascii_log_file_path)
+        if ascii_logger:
             manager.add_listener(ascii_logger)
 
-        if self.interface == CANInterface.SIM:
-            # Start CAN bus with simulated messaging.
-            manager.simulate(messages=self.__sim_messages)
-        else:
-            # Start CAN bus.
-            manager.start()
-
-        # Run bus.
         try:
-            while True:
+            if self.interface == CANInterface.SIM:
+                # Start CAN bus with simulated messaging.
+                manager.simulate(messages=self.__sim_messages)
+            else:
+                # Start CAN bus.
+                manager.start()
+
+            # Implement a loop with a condition to check for a stop flag.
+            while not getattr(self, "_stop_event", True):
                 pass
 
         # Manual program stop.
         except KeyboardInterrupt:
-            # Stop loggers.
+            pass
+
+        finally:
             sqlite_logger.stop()
 
             if self.__csv_logging:
@@ -418,3 +426,7 @@ class CANTelemetryApp:
 
             # Stop manager.
             manager.stop()
+
+    def stop(self):
+        """Stop the telemetry application."""
+        setattr(self, "_stop_event", True)

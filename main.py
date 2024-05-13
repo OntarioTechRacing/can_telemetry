@@ -1,33 +1,29 @@
 """Main application module."""
 
+import sys
+
+from PyQt6 import QtWidgets
+
+from app_config import CANTelemetryAppConfig
+from gui import MainWindow
+
 if __name__ == "__main__":
-    # TODO: DEV TEST CODE.
-    # import time
-    # from can import Message
-    # from app import CANTelemetryApp, CANInterface
-    #
-    # current_time = time.time()
-    # message_list = [
-    #     Message(
-    #         arbitration_id=0x001,
-    #         data=b"\x01\x02\x03\x04",
-    #         timestamp=current_time + 2,
-    #     ),
-    #     Message(
-    #         arbitration_id=0x002,
-    #         data=b"\x05\x06\x07\x08",
-    #         timestamp=current_time + 4,
-    #     ),
-    # ]
-    #
-    # app = CANTelemetryApp(
-    #     dbc_file_path="example.dbc",
-    #     interface=CANInterface.SIM,
-    #     bit_rate=500000,
-    #     sim_messages=message_list,
-    #     csv_logging=True,
-    #     ascii_logging=True,
-    # )
-    # app.start()
-    # print(f"Last 3 messages: {app.sqlite_read_via(3)}")  # Last 3 messages.
-    pass
+    # Load config.
+    config = CANTelemetryAppConfig.init_from_dir("example_config")
+
+    # Init telemetry backend app.
+    telemetry = config.init_app()
+    telemetry.start()
+
+    # Init and run GUI.
+    gui = QtWidgets.QApplication(sys.argv)
+    mainWindow = MainWindow(config.gui_ui)
+    mainWindow.show()
+
+    try:
+        gui.exec()
+    except KeyboardInterrupt:  # GUI closed.
+        pass
+    finally:
+        telemetry.stop()
+        telemetry.join()

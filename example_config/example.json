@@ -1,0 +1,47 @@
+{
+    "dbc_file_path": "example.dbc",
+    "interface": "PEAK",
+    "bit_rate": 500000,
+    "hardware_filters": null,
+    "base_log_file_path": "2024-05-11 12-51-01_log",
+    "csv_logging": true,
+    "ascii_logging": true,
+    "sim_messages": [
+        {
+            "timestamp": 1715446263.7859976,
+            "arbitration_id": 1,
+            "is_extended_id": true,
+            "channel": null,
+            "dlc": 4,
+            "data": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "is_error_frame": false,
+            "is_remote_frame": false,
+            "is_fd": false,
+            "bitrate_switch": false,
+            "error_state_indicator": false
+        },
+        {
+            "timestamp": 1715446265.7859976,
+            "arbitration_id": 2,
+            "is_extended_id": true,
+            "channel": null,
+            "dlc": 4,
+            "data": [
+                5,
+                6,
+                7,
+                8
+            ],
+            "is_error_frame": false,
+            "is_remote_frame": false,
+            "is_fd": false,
+            "bitrate_switch": false,
+            "error_state_indicator": false
+        }
+    ]
+}

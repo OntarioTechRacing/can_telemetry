@@ -1,5 +1,6 @@
 # $ pip install -r requirements.txt
 
 cantools~=39.4.4
+pyqt6~=6.4.2
 python-can~=4.3.1
 matplotlib~=3.8.2

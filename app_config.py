@@ -3,6 +3,8 @@
 import json
 import os
 
+from app import CANTelemetryApp
+
 DEFAULT_CONFIG_FILE = "config.json"
 DEFAULT_CONFIG_APP_KEY = "app"  # JSON key value for (telemetry) app config.
 DEFAULT_CONFIG_GUI_KEY = "gui"  # JSON key value for GUI config.
@@ -70,3 +72,6 @@ class CANTelemetryAppConfig:
             )
 
         return cls(app_json=app_json_data, gui_ui=gui_ui_data, dbc=dbc_data)
+
+    def init_app(self) -> CANTelemetryApp:
+        return CANTelemetryApp.from_json_file(self.app_json)

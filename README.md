@@ -2,6 +2,15 @@
 
 General purpose CAN telemetry tool written in Python 3.
 
+---
+
+<details markdown="1">
+  <summary>Table of Contents</summary>
+
+</details>
+
+---
+
 ## Backend CANTelemetryApp
 
 ### Example Usage
@@ -44,6 +53,8 @@ print(f"Last 3 messages: {app.sqlite_read_via(3)}")  # Last 3 messages.
 app.stop()
 app.join()
 ```
+
+---
 
 ## Designing a custom UI with QT Designer
 

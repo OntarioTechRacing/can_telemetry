@@ -8,6 +8,10 @@ from app_config import CANTelemetryAppConfig
 from gui import MainWindow
 
 if __name__ == "__main__":
+    project_dir = "/" #path for the starting point of the app.
+   # take a config file that has the location of app 1
+    app_dir: str = ""
+
 
     # Load config.
     config = CANTelemetryAppConfig.init_from_dir(app_dir)

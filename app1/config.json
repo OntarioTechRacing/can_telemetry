@@ -1,5 +1,6 @@
 {
     "gui": "example.ui",
     "app": "example.json",
-    "dbc": "example.dbc"
+    "dbc": "example.dbc",
+    "app1": "can_telemetry\\app1"
 }

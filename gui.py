@@ -13,8 +13,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
 # def load_init():
-#     open("config.json", "r")
-#     with open("config.json", "r") as config_file:
+#     open("start.json", "r")
+#     with open("start.json", "r") as config_file:
 #         config = json.load(config_file)
 #         return config
 #     app = config['gui']
@@ -25,7 +25,7 @@ def load_init() -> Tuple[Dict[str, Any], Optional[str], Optional[str], Optional[
     """
     Load configuration settings from a JSON file.
 
-    Opens 'config.json', reads its contents, and extracts specific settings.
+    Opens 'start.json', reads its contents, and extracts specific settings.
 
     Returns:
         Tuple containing:
@@ -34,7 +34,7 @@ def load_init() -> Tuple[Dict[str, Any], Optional[str], Optional[str], Optional[
         - app (Optional[str]): The 'app' configuration if available, otherwise None.
         - dbc (Optional[str]): The 'dbc' configuration if available, otherwise None.
     """
-    with open("config.json", "r") as config_file:
+    with open("start.json", "r") as config_file:
         config: Dict[str, Any] = json.load(config_file)
 
     # Extract specific settings from the configuration

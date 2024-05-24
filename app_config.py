@@ -5,7 +5,7 @@ import os
 
 from app import CANTelemetryApp
 
-DEFAULT_CONFIG_FILE = "config.json"
+DEFAULT_CONFIG_FILE = "start.json"
 DEFAULT_CONFIG_APP_KEY = "app"  # JSON key value for (telemetry) app config.
 DEFAULT_CONFIG_GUI_KEY = "gui"  # JSON key value for GUI config.
 DEFAULT_CONFIG_DBC_KEY = "dbc"  # JSON key value for CAN DBC config.

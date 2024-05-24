@@ -8,8 +8,9 @@ from app_config import CANTelemetryAppConfig
 from gui import MainWindow
 
 if __name__ == "__main__":
+
     # Load config.
-    config = CANTelemetryAppConfig.init_from_dir("example_config")
+    config = CANTelemetryAppConfig.init_from_dir(app_dir)
 
     # Init telemetry backend app.
     telemetry = config.init_app()

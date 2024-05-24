@@ -1,6 +1,8 @@
 # $ pip install -r requirements.txt
 
-cantools~=39.4.4
-pyqt6~=6.4.2
-python-can~=4.3.1
-matplotlib~=3.8.2
+PyQt6==6.7.0
+cantools==39.4.5
+python-can==4.3.1
+matplotlib==3.8.4
+# pre-emptive version limitation until sub-packages are compatible with numpy 2
+numpy<2

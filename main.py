@@ -11,20 +11,50 @@ from gui import MainWindow
 
 if __name__ == "__main__":
 
-    # Initialize with an empty list
-    data: List[str] = ["ERROR"] #: Config File not in root directory.
+    start = "start.json"
+    # Open the file and read its contents
+    try:
+        with open(start, 'r') as file:
+            content = file.read()
+            if not content:
+                print(f"The file {start} is empty.")
+            else:
+                print("Content:", content)
+    except FileNotFoundError:
+        print(f"The file {start} does not exist.")
+    except IOError as e:
+        print(f"An IOError occurred: {e}")
 
     # Load JSON data from a file
-    with open('start.json', 'r') as file:
-        data = json.load(file)
+    with content:
+        data = json.load(content)
 
+    start = "start.json"
 
+    # Open the file and read its contents
+    try:
+        with open(start, 'r') as file:
+            content = file.read()
+            if not content:
+                raise ValueError(f"The file {start} is empty.")
+            else:
+                print("Content:", content)
+    except FileNotFoundError:
+        print(f"The file {start} does not exist.")
+        exit()  # Exit the program if the file does not exist
+    except IOError as e:
+        print(f"An IOError occurred: {e}")
+        exit()  # Exit the program if an IOError occurs
 
-    project_dir = "/" #path for the starting point of the app.
-   # take a config file that has the location of app 1
+    # Load JSON data from a file
+    try:
+        app_list = json.loads(content)
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        exit()  # Exit the program if JSON decoding fails
 
-    app_dir: str = ""
-
+    # Now `data` contains the JSON content
+    print("Data:", app_list)
 
 
     # Load config.

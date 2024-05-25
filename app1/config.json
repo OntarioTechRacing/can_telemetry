@@ -1,3 +1,5 @@
 {
-    "list-of-app-directories": ["can_telemetry\\app1", "ERROR"]
+    "gui": "example.ui",
+    "app": "example.json",
+    "dbc": "example.dbc"
 }

@@ -1,13 +1,21 @@
-"""Main application module."""
+"""Main application module.
+
+This module serves as the entry point for the CAN Telemetry Application.
+It initializes the telemetry backend and graphical user interface (GUI),
+loads configuration settings, and manages the application lifecycle.
+
+Attributes:
+    None.
+"""
 
 import sys
 import json
 from typing import List
 
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, uic
 
 from app_config import CANTelemetryAppConfig
-from gui import MainWindow
+from gui import AppWindow, MainWindow
 
 if __name__ == "__main__":
 
@@ -35,25 +43,30 @@ if __name__ == "__main__":
     # Now `data` contains the JSON content
     print("Data:", app_list)
 
-    app_dir: str = ""
+    app_dir: str = ""  # Default app directory
     keep_running: bool = True
+
+    app_selector = MainWindow("start.ui", app_list)
+
     while keep_running:
-        # Load config.
+        # Load configuration settings from the app directory.
         config = CANTelemetryAppConfig.init_from_dir(app_dir)
 
-        # Init telemetry backend app.
+        # Initialize telemetry backend application based on loaded configuration.
         telemetry = config.init_app()
         telemetry.start()
 
-        # Init and run GUI.
+        # Initialize and display the graphical user interface (GUI).
         gui = QtWidgets.QApplication(sys.argv)
-        mainWindow = MainWindow(config.gui_ui)
+        mainWindow = AppWindow(config.gui_ui)
         mainWindow.show()
 
         try:
+            # Run the GUI event loop.
             gui.exec()
-        except KeyboardInterrupt:  # GUI closed.
+        except KeyboardInterrupt:  # Handle GUI closure by user.
             pass
         finally:
+            # Stop the telemetry backend application and clean up resources.
             telemetry.stop()
             telemetry.join()

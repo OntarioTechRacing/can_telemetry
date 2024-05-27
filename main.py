@@ -10,6 +10,11 @@ from app_config import CANTelemetryAppConfig
 from gui import MainWindow
 
 if __name__ == "__main__":
+    ##Loading json
+    with open('example.json') as f:
+        app_list = json.load(f)
+    ##serializing
+    json_string = json.dumps(app_list)
 
     start = "start.json"
     # Open the file and read its contents

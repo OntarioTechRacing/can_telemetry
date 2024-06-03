@@ -48,6 +48,11 @@ def run_app(app_dir: str):
 
 
 if __name__ == "__main__":
+    ##Loading json
+    with open('example.json') as f:
+        app_list = json.load(f)
+    ##serializing
+    json_string = json.dumps(app_list)
 
     start = "start.json"
     # Open the file and read its contents

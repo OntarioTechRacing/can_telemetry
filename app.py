@@ -1,4 +1,12 @@
-"""Main application class for CAN Telemetry."""
+"""Main application class for CAN Telemetry.
+
+This module defines the primary application logic for the CAN Telemetry system,
+including message serialization and deserialization, CAN interface configuration,
+logging setup, and application lifecycle management.
+
+Attributes:
+    None.
+"""
 
 import json
 import sqlite3
@@ -11,6 +19,8 @@ from cantools import database
 from cantools.database.namedsignalvalue import NamedSignalValue
 
 from bus_manager_class import CANBusManager
+
+# Message serialization functions
 
 
 def message_serializer(msg):
@@ -55,14 +65,42 @@ def message_deserializer(data):
 
 
 class CANInterface(Enum):
-    """Enum to define supported CAN bus interface types."""
+    """
+    Enum to define supported CAN bus interface types.
+
+    This enum provides a set of constants representing different types of CAN bus interfaces.
+    Each constant corresponds to a specific interface type, such as simulated, virtual, or PEAK.
+    """
 
     SIM = auto()
+    """Simulated CAN bus interface."""
+
     VIRTUAL = auto()
+    """Virtual CAN bus interface."""
+
     PEAK = auto()
+    """PEAK CAN bus interface."""
 
 
 class CANTelemetryApp(Thread):
+    """Main application class for CAN Telemetry.
+
+    This class manages the primary application logic for the CAN Telemetry system,
+    including CAN interface configuration, message decoding, logging setup,
+    and application lifecycle management.
+
+    Args:
+        dbc_file_path (str): File path of the DBC file.
+        interface (CANInterface, optional): Interface CANInterface enum type. Defaults to CANInterface.VIRTUAL.
+        bit_rate (int, optional): Bit rate of the CAN bus instance. Defaults to 500000.
+        hardware_filters (list, optional): Hardware filters to specify. Defaults to None.
+        base_log_file_path (str, optional): Base filepath of all log output files. Defaults to None.
+        csv_logging (bool, optional): Boolean to enable CSV logging. Defaults to False.
+        ascii_logging (bool, optional): Boolean to enable ASCII logging. Defaults to False.
+        sim_messages (list, optional): Simulation messages for SIM interface. Defaults to None.
+    """
+
+    # Initialization method
     def __init__(
         self,
         dbc_file_path: str,
@@ -178,6 +216,8 @@ class CANTelemetryApp(Thread):
             ASCII log file path.
         """
         return f"{self.base_log_file_path}_ascii.log"
+
+    # Methods for JSON serialization and deserialization
 
     def __to_json_dict(self) -> dict:
         return {
@@ -322,6 +362,7 @@ class CANTelemetryApp(Thread):
 
         return messages
 
+    # Method for decoding CAN bus messages with DBC
     def get_dbc_db(self) -> database.Database:
         """Get DBC database object from DBC file path.
 
@@ -345,6 +386,7 @@ class CANTelemetryApp(Thread):
         db = self.get_dbc_db()
         return db.decode_message(msg.arbitration_id, msg.data)
 
+    # Primary logic execution method
     def run(self):
         """Start primary CANTelemetryApp logic."""
         # Initialize CANBusManager depending on the interface.
@@ -427,6 +469,7 @@ class CANTelemetryApp(Thread):
             # Stop manager.
             manager.stop()
 
+    # Method to stop the application
     def stop(self):
         """Stop the telemetry application."""
         setattr(self, "_stop_event", True)

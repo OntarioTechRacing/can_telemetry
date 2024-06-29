@@ -9,13 +9,35 @@ General purpose CAN telemetry tool written in Python 3.
 <details markdown="1">
   <summary>Table of Contents</summary>
 
+- [1 Background](#1-background)
+- [2 Backend CANTelemetryApp](#2-backend-cantelemetryapp)
+    - [2.1 Example Usage](#21-example-usage)
+- [3 Reference Docs](#3-reference-docs)
+    - [3.1 Designing a custom UI with QT Designer](#31-designing-a-custom-ui-with-qt-designer)
+
 </details>
 
 ---
 
-## Backend CANTelemetryApp
+## 1 Background
 
-### Example Usage
+The purpose of this software is to provide a desktop application for building
+custom digital interfaces and scripting for physical CAN tools.
+
+This application enables quick and easy development of tools for automating CAN
+procedures. It also allows users with less in-depth knowledge of CAN to utilize
+these tools without needing developer tools such as BusMaster or CANalyzer.
+
+Python is the primary language used to support easy and rapid tool
+development. [PyQt6](https://pypi.org/project/PyQt6/) was selected for its clean
+interfaces and support from its native GUI pick-and-place
+designer, [Qt Designer](https://doc.qt.io/qt-6/qtdesigner-manual.html).
+
+---
+
+## 2 Backend CANTelemetryApp
+
+### 2.1 Example Usage
 
 ```python
 import time
@@ -58,6 +80,8 @@ app.join()
 
 ---
 
-## Designing a custom UI with QT Designer
+## 3 Reference Docs
 
-https://doc.qt.io/qt-6/qtdesigner-manual.html
+### 3.1 Designing a custom UI with QT Designer
+
+[QT Designer](https://doc.qt.io/qt-6/qtdesigner-manual.html).

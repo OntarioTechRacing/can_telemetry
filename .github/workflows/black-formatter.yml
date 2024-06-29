@@ -1,6 +1,6 @@
 ################################################################################
-# black-linter.yml
-# Base commit hash: fe797fd
+# black-formatter.yml
+# Base commit hash: 607e0b3
 #
 # Check for Black formatting (line length 80) in adherence to conventions.
 ################################################################################

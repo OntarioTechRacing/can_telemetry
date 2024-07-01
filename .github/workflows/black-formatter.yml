@@ -1,6 +1,6 @@
 ################################################################################
-# black-formatter.yml
-# Base commit hash: 607e0b3
+# black-formatter.yaml
+# Base commit hash: f7b64ef
 #
 # Check for Black formatting (line length 80) in adherence to conventions.
 ################################################################################

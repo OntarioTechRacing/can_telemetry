@@ -1,6 +1,6 @@
 # can_telemetry
 
-![black-formatter](https://github.com/OntarioTechRacing/can_telemetry/actions/workflows/black-formatter.yml/badge.svg)
+![black-formatter](https://github.com/OntarioTechRacing/can_telemetry/actions/workflows/black-formatter.yaml/badge.svg)
 
 General purpose CAN telemetry tool written in Python 3.
 
